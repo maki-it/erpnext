@@ -9,7 +9,7 @@ on:
       apps_json:
         description: >
           JSON array of Frappe apps to install, e.g.
-          [{"url":"https://github.com/frappe/erpnext.git","branch":"version-15"}].
+          [{"url":"https://github.com/frappe/erpnext.git","version":"v16.12.0"}].
           Leave empty to use the defaults defined in apps.json.
         required: false
         type: string

@@ -27,12 +27,13 @@ def install_apps() -> None:
             continue
 
         branch = app.get("branch")
+        version = app.get("version") or branch
         cmd = ["bench", "get-app", "--resolve-deps"]
-        if branch:
-            cmd += ["--branch", branch]
+        if version:
+            cmd += ["--branch", version]
         cmd.append(url)
 
-        print(f"Installing: {url}" + (f" @ {branch}" if branch else ""))
+        print(f"Installing: {url}" + (f" @ {version}" if version else ""))
         subprocess.run(cmd, check=True, cwd="/home/frappe/frappe-bench")
 
 

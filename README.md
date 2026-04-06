@@ -14,11 +14,19 @@ By default the image contains the latest stable versions of:
 
 The default app list is maintained in [`apps.json`](./apps.json).
 
+## Automatic version updates (Renovate)
+
+App versions in `apps.json` are pinned to specific release tags (e.g. `v16.12.0`).
+[Renovate](https://docs.renovatebot.com/) is configured via [`renovate.json`](./renovate.json)
+to watch those tags and automatically open a pull request whenever a new release is published
+upstream. Merging the PR into `main` triggers a new Docker image build and push.
+
 ## Build triggers
 
 | Event | Behaviour |
 |-------|-----------|
 | Push to `main` | Builds and pushes `ghcr.io/<org>/erpnext:latest` using the apps in `apps.json` |
+| Renovate PR merged | Same as above — Renovate bumps `apps.json`, merge triggers the build |
 | `workflow_dispatch` | Same as above, but you can supply a custom JSON array of apps (see below) |
 
 ## Manual build with custom apps
@@ -28,8 +36,8 @@ The default app list is maintained in [`apps.json`](./apps.json).
 
 ```json
 [
-  {"url": "https://github.com/frappe/erpnext.git", "branch": "version-15"},
-  {"url": "https://github.com/frappe/crm.git",     "branch": "main"},
+  {"url": "https://github.com/frappe/erpnext.git", "version": "v16.12.0"},
+  {"url": "https://github.com/frappe/crm.git",     "version": "v1.64.0"},
   {"url": "https://github.com/your-org/your-app.git"}
 ]
 ```
@@ -41,7 +49,8 @@ Each entry supports the following keys:
 | Key | Required | Description |
 |-----|----------|-------------|
 | `url` | ✅ | Git URL of the Frappe app |
-| `branch` | ❌ | Branch / tag to check out (defaults to the repository's default branch) |
+| `version` | ❌ | Tag or branch to check out (defaults to the repository's default branch). Renovate tracks this field automatically. |
+| `branch` | ❌ | Alias for `version`, accepted for backwards compatibility |
 
 ## Local development
 

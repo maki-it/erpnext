@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "description": "Update Frappe app versions pinned in apps.json",
+      "customType": "regex",
+      "fileMatch": ["^apps\\.json$"],
+      "matchStrings": [
+        "\"url\":\\s*\"https://github\\.com/(?<depName>[^\"]+)\\.git\"[\\s\\S]*?\"version\":\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver"
+    }
+  ]
+}
