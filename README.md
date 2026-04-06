@@ -3,54 +3,21 @@
 Custom Frappe/ERPNext Docker image, automatically built and pushed to
 [ghcr.io](https://github.com/orgs/maki-it/packages).
 
-## Default apps
+## Installed apps
 
-By default the image contains the latest stable versions of:
+See [apps.json](./apps.json) for the default list of apps included in the image. 
+You can customize this list by modifying `apps.json` and rebuilding the image (see below).
 
-| App | Repository |
-|-----|-----------|
-| ERPNext | <https://github.com/frappe/erpnext.git> |
-| CRM | <https://github.com/frappe/crm.git> |
-
-The default app list is maintained in [`apps.json`](./apps.json).
-
-## Automatic version updates (Renovate)
+## Versioning
 
 App versions in `apps.json` are pinned to specific release tags (e.g. `v16.12.0`).
+[Frappe Framework](https://github.com/frappe/frappe) version is pinned in `frappe-version.txt` (e.g. `v16.0.0`)
+
+### Renovate
+
 [Renovate](https://docs.renovatebot.com/) is configured via [`renovate.json`](./renovate.json)
 to watch those tags and automatically open a pull request whenever a new release is published
 upstream. Merging the PR into `main` triggers a new Docker image build and push.
-
-## Build triggers
-
-| Event | Behaviour |
-|-------|-----------|
-| Push to `main` | Builds and pushes `ghcr.io/<org>/erpnext:latest` using the apps in `apps.json` |
-| Renovate PR merged | Same as above — Renovate bumps `apps.json`, merge triggers the build |
-| `workflow_dispatch` | Same as above, but you can supply a custom JSON array of apps (see below) |
-
-## Manual build with custom apps
-
-1. Go to **Actions → Build and Push Docker Image → Run workflow**.
-2. In the *apps_json* field, paste a JSON array describing the apps you want installed, e.g.:
-
-```json
-[
-  {"url": "https://github.com/frappe/erpnext.git", "version": "v16.12.0"},
-  {"url": "https://github.com/frappe/crm.git",     "version": "v1.64.0"},
-  {"url": "https://github.com/your-org/your-app.git"}
-]
-```
-
-Leave the field empty to fall back to the default `apps.json`.
-
-Each entry supports the following keys:
-
-| Key | Required | Description |
-|-----|----------|-------------|
-| `url` | ✅ | Git URL of the Frappe app |
-| `version` | ❌ | Tag or branch to check out (defaults to the repository's default branch). Renovate tracks this field automatically. |
-| `branch` | ❌ | Alias for `version`, accepted for backwards compatibility |
 
 ## Local image build
 
