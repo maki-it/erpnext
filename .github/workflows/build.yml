@@ -77,7 +77,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
-            FRAPPE_PATH=https://github.com/frappe/frappe
             FRAPPE_VERSION=${{ inputs.frappe_version }}
             APPS_JSON_BASE64=${{ env.APP_JSON_BASE64 }}
           cache-from: type=gha
