@@ -36,6 +36,19 @@ jobs:
         with:
           submodules: true
 
+      # Resolve which apps to install: prefer the workflow-dispatch input,
+      # fall back to the committed apps.json file.
+      - name: Prepare apps JSON
+        env:
+          APPS_JSON_INPUT: ${{ inputs.apps_json }}
+        run: |
+          if [ -n "$APPS_JSON_INPUT" ]; then
+            echo "$APPS_JSON_INPUT" > apps.json
+          fi
+
+          echo "APPS_JSON=$(jq -c '.' apps.json)" >> $GITHUB_ENV
+          echo "APPS_JSON_BASE64=$(base64 -w 0 apps.json)" >> $GITHUB_ENV
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
         with:
@@ -51,21 +64,12 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
+          labels: |
+            frappe.version=${{ inputs.frappe_version }}
+            frappe.apps=${{ env.APPS_JSON }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
-
-      # Resolve which apps to install: prefer the workflow-dispatch input,
-      # fall back to the committed apps.json file.
-      - name: Prepare apps JSON
-        env:
-          APPS_JSON_INPUT: ${{ inputs.apps_json }}
-        run: |
-          if [ -n "$APPS_JSON_INPUT" ]; then
-            echo "$APPS_JSON_INPUT" > apps.json
-          fi
-          
-          echo "APPS_JSON_BASE64=$(base64 -w 0 apps.json)" >> $GITHUB_ENV
 
       - name: Build image
         uses: docker/build-push-action@v7
