@@ -9,10 +9,9 @@ on:
     inputs:
       frappe_version:
         description: >
-          Frappe/ERPNext major version branch used for the build
-          (e.g. version-16, version-15). Defaults to version-16.
+          Frappe/ERPNext release tag to build from.
         required: false
-        default: version-16
+        default: v16.13.0
         type: string
       apps_json:
         description: >
