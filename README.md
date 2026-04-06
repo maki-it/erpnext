@@ -60,7 +60,7 @@ Each entry supports the following keys:
 ```bash
 docker build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
- --build-arg=FRAPPE_BRANCH=version-16 \
+ --build-arg=FRAPPE_BRANCH=$(cat frappe-version.txt) \
  --build-arg=APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
  --tag=custom:15 \
  --file=images/layered/Containerfile .

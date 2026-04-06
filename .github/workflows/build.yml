@@ -5,21 +5,6 @@ on:
     branches:
       - main
   pull_request:
-  workflow_dispatch:
-    inputs:
-      frappe_version:
-        description: >
-          Frappe/ERPNext release tag to build from.
-        required: false
-        default: v16.13.0
-        type: string
-      apps_json:
-        description: >
-          JSON array of Frappe apps to install, e.g.
-          [{"url":"https://github.com/frappe/erpnext.git","version":"v16.12.0"}].
-          Leave empty to use the defaults defined in apps.json.
-        required: false
-        type: string
 
 jobs:
   build:
@@ -38,15 +23,10 @@ jobs:
       # Resolve which apps to install: prefer the workflow-dispatch input,
       # fall back to the committed apps.json file.
       - name: Prepare apps JSON
-        env:
-          APPS_JSON_INPUT: ${{ inputs.apps_json }}
         run: |
-          if [ -n "$APPS_JSON_INPUT" ]; then
-            echo "$APPS_JSON_INPUT" > apps.json
-          fi
-
           echo "APPS_JSON=$(jq -c '.' apps.json)" >> $GITHUB_ENV
           echo "APPS_JSON_BASE64=$(base64 -w 0 apps.json)" >> $GITHUB_ENV
+          echo "FRAPPE_VERSION=$(cat frappe-version.txt)" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
@@ -64,7 +44,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           labels: |
-            frappe.version=${{ inputs.frappe_version }}
+            frappe.version=${{ env.FRAPPE_VERSION }}
             frappe.apps=${{ env.APPS_JSON }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
@@ -80,7 +60,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
-            FRAPPE_VERSION=${{ inputs.frappe_version }}
+            FRAPPE_VERSION=${{ env.FRAPPE_VERSION  }}
             APPS_JSON_BASE64=${{ env.APP_JSON_BASE64 }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
