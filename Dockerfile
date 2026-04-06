@@ -12,11 +12,9 @@ FROM ghcr.io/frappe/frappe-builder:${FRAPPE_VERSION} AS builder
 
 ARG APPS_JSON_BASE64
 
-COPY install_apps.py /usr/local/bin/install_apps.py
-
 RUN --mount=type=cache,target=/root/.cache/pip \
     export APPS_JSON_BASE64=${APPS_JSON_BASE64} && \
-    python3 /usr/local/bin/install_apps.py
+    install_apps.sh
 
 # ── Stage 2: runtime image ───────────────────────────────────────────────────
 FROM ghcr.io/frappe/frappe-worker:${FRAPPE_VERSION}
