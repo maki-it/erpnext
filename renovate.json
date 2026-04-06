@@ -5,7 +5,9 @@
     {
       "description": "Update Frappe app versions pinned in apps.json",
       "customType": "regex",
-      "fileMatch": ["^apps\\.json$"],
+      "managerFilePatterns": [
+        "/^apps\.json$/"
+      ],
       "matchStrings": [
         "\"url\":\\s*\"https://github\\.com/(?<depName>[^\"]+)\\.git\"[\\s\\S]*?\"version\":\\s*\"(?<currentValue>[^\"]+)\""
       ],
