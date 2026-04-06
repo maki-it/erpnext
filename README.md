@@ -52,14 +52,16 @@ Each entry supports the following keys:
 | `version` | ❌ | Tag or branch to check out (defaults to the repository's default branch). Renovate tracks this field automatically. |
 | `branch` | ❌ | Alias for `version`, accepted for backwards compatibility |
 
-## Local development
+## Local image build
 
-Build the image locally with the default apps:
-
+1. Clone this repository with submodules:
+2. Define custom apps in `apps.json` (optional, see above).
+4. Build the image:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/frappe/bench/develop/easy-install.py -o easy-install.py
-python3 easy-install.py build \
-  --apps-json apps.json \
-  --frappe-branch version-16 \
-  --tag erpnext-custom:local
+docker build \
+ --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+ --build-arg=FRAPPE_BRANCH=version-16 \
+ --build-arg=APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
+ --tag=custom:15 \
+ --file=images/layered/Containerfile .
 ```

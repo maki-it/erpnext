@@ -32,7 +32,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
 
       # Resolve which apps to install: prefer the workflow-dispatch input,
       # fall back to the committed apps.json file.
@@ -43,30 +64,21 @@ jobs:
           if [ -n "$APPS_JSON_INPUT" ]; then
             echo "$APPS_JSON_INPUT" > apps.json
           fi
+          
+          echo "APPS_JSON_BASE64=$(base64 -w 0 apps.json)" >> $GITHUB_ENV
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v7
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=sha-
-
-      - name: Download easy-install.py
-        # Pin to a specific commit or verify the checksum in production environments.
-        run: curl -fsSL https://raw.githubusercontent.com/frappe/bench/develop/easy-install.py -o easy-install.py
-
-      - name: Build and push image
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-          FRAPPE_BRANCH: ${{ inputs.frappe_version || 'version-16' }}
-          SHOULD_PUSH: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-        run: bash .github/scripts/build.sh
+          file: frappe_docker/images/layered/Containerfile
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          build-args: |
+            FRAPPE_PATH=https://github.com/frappe/frappe
+            FRAPPE_VERSION=${{ inputs.frappe_version }}
+            APPS_JSON_BASE64=${{ env.APP_JSON_BASE64 }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
