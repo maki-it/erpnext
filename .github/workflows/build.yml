@@ -6,6 +6,13 @@ on:
       - main
   workflow_dispatch:
     inputs:
+      frappe_version:
+        description: >
+          Frappe/ERPNext major version tag used for the base images
+          (e.g. version-16, version-15). Defaults to version-16.
+        required: false
+        default: version-16
+        type: string
       apps_json:
         description: >
           JSON array of Frappe apps to install, e.g.
@@ -67,6 +74,7 @@ jobs:
           context: .
           push: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
           build-args: |
+            FRAPPE_VERSION=${{ inputs.frappe_version || 'version-16' }}
             APPS_JSON_BASE64=${{ steps.apps.outputs.apps_json_base64 }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

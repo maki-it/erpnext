@@ -5,10 +5,10 @@
 #   1. builder – install apps into the bench using frappe_builder.
 #   2. final   – copy the populated bench into the lean frappe_worker runtime.
 
-ARG FRAPPE_VERSION=latest
+ARG FRAPPE_VERSION=version-16
 
 # ── Stage 1: install apps ────────────────────────────────────────────────────
-FROM ghcr.io/frappe/frappe_builder:${FRAPPE_VERSION} AS builder
+FROM ghcr.io/frappe/frappe-builder:${FRAPPE_VERSION} AS builder
 
 ARG APPS_JSON_BASE64
 
@@ -19,6 +19,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python3 /usr/local/bin/install_apps.py
 
 # ── Stage 2: runtime image ───────────────────────────────────────────────────
-FROM ghcr.io/frappe/frappe_worker:${FRAPPE_VERSION}
+FROM ghcr.io/frappe/frappe-worker:${FRAPPE_VERSION}
 
 COPY --from=builder /home/frappe/frappe-bench /home/frappe/frappe-bench
