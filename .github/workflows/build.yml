@@ -47,8 +47,7 @@ jobs:
             frappe.version=${{ env.FRAPPE_VERSION }}
             frappe.apps=${{ env.APPS_JSON }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=sha-
+            type=semver,pattern={{version}},value=${{ env.FRAPPE_VERSION }}
 
       - name: Build image
         uses: docker/build-push-action@v7
