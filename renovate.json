@@ -3,6 +3,9 @@
   "extends": [
     "github>maki-it/renovate-config"
   ],
+  "git-submodules": {
+    "enabled": true
+  },
   "customManagers": [
     {
       "description": "Update Frappe app versions pinned in apps.json",
