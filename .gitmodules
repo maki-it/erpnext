@@ -2,3 +2,4 @@
 	path = frappe_docker
 	url = https://github.com/frappe/frappe_docker
 	shallow = true
+	branch = v2.2.2
