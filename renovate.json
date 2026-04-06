@@ -20,13 +20,13 @@
       "versioningTemplate": "semver"
     },
     {
-      "description": "Update frappe_version in GitHub Actions workflow",
+      "description": "Update Frappe version pinned in frappe-version.txt",
       "customType": "regex",
       "managerFilePatterns": [
-        "/^\\.github\\/workflows\\/build\\.ya?ml$/"
+        "/^frappe-version\\.txt$/"
       ],
       "matchStrings": [
-        "frappe_version:\\s*[\\s\\S]*?default:\\s*(?<currentValue>v?\\d+\\.\\d+\\.\\d+)"
+        "^(?<currentValue>v?\\d+\\.\\d+\\.\\d+)$"
       ],
       "depNameTemplate": "frappe/frappe",
       "datasourceTemplate": "github-tags",
