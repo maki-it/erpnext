@@ -61,6 +61,6 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             FRAPPE_VERSION=${{ env.FRAPPE_VERSION  }}
-            APPS_JSON_BASE64=${{ env.APP_JSON_BASE64 }}
+            APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
