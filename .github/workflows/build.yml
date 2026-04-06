@@ -61,6 +61,8 @@ jobs:
           if [ -n "$APPS_JSON_INPUT" ]; then
             echo "$APPS_JSON_INPUT" > apps.json
           fi
+          
+          APP_JSON_BASE64=$(base64 -w 0 apps.json) >> $GITHUB_ENV
 
       - name: Build image
         uses: docker/build-push-action@v7
@@ -73,4 +75,4 @@ jobs:
           build-args: |
             FRAPPE_PATH=https://github.com/frappe/frappe
             FRAPPE_VERSION=${{ inputs.frappe_version }}
-            APPS_JSON_BASE64=$(base64 -w 0 apps.json)
+            APPS_JSON_BASE64=${{ env.APP_JSON_BASE64 }}
