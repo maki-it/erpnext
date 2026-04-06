@@ -62,7 +62,7 @@ jobs:
             echo "$APPS_JSON_INPUT" > apps.json
           fi
           
-          APP_JSON_BASE64=$(base64 -w 0 apps.json) >> $GITHUB_ENV
+          echo "APPS_JSON_BASE64=$(base64 -w 0 apps.json)" >> $GITHUB_ENV
 
       - name: Build image
         uses: docker/build-push-action@v7
