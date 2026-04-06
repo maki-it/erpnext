@@ -4,8 +4,16 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
     inputs:
+      frappe_version:
+        description: >
+          Frappe/ERPNext major version branch used for the build
+          (e.g. version-16, version-15). Defaults to version-16.
+        required: false
+        default: version-16
+        type: string
       apps_json:
         description: >
           JSON array of Frappe apps to install, e.g.
@@ -26,24 +34,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       # Resolve which apps to install: prefer the workflow-dispatch input,
       # fall back to the committed apps.json file.
       - name: Prepare apps JSON
-        id: apps
         env:
           APPS_JSON_INPUT: ${{ inputs.apps_json }}
         run: |
           if [ -n "$APPS_JSON_INPUT" ]; then
-            APPS_JSON="$APPS_JSON_INPUT"
-          else
-            APPS_JSON=$(cat apps.json)
+            echo "$APPS_JSON_INPUT" > apps.json
           fi
-          # Use Python for portable base64 encoding (avoids GNU/BSD flag differences).
-          B64=$(echo "$APPS_JSON" | python3 -c "import base64,sys; print(base64.b64encode(sys.stdin.buffer.read()).decode(), end='')")
-          echo "apps_json_base64=$B64" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -61,14 +60,13 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
 
+      - name: Download easy-install.py
+        # Pin to a specific commit or verify the checksum in production environments.
+        run: curl -fsSL https://raw.githubusercontent.com/frappe/bench/develop/easy-install.py -o easy-install.py
+
       - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-          build-args: |
-            APPS_JSON_BASE64=${{ steps.apps.outputs.apps_json_base64 }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          FRAPPE_BRANCH: ${{ inputs.frappe_version || 'version-16' }}
+          SHOULD_PUSH: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        run: bash .github/scripts/build.sh

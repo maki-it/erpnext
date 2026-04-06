@@ -57,13 +57,9 @@ Each entry supports the following keys:
 Build the image locally with the default apps:
 
 ```bash
-# Linux
-APPS_JSON_BASE64=$(base64 -w 0 apps.json)
-
-# macOS
-APPS_JSON_BASE64=$(base64 -i apps.json)
-
-docker build \
-  --build-arg APPS_JSON_BASE64="$APPS_JSON_BASE64" \
-  -t erpnext-custom:local .
+curl -fsSL https://raw.githubusercontent.com/frappe/bench/develop/easy-install.py -o easy-install.py
+python3 easy-install.py build \
+  --apps-json apps.json \
+  --frappe-branch version-16 \
+  --tag erpnext-custom:local
 ```
