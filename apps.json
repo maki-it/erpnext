@@ -1,7 +1,7 @@
 [
   {
     "url": "https://github.com/frappe/erpnext.git",
-    "version": "v16.13.2"
+    "version": "v16.13.3"
   },
   {
     "url": "https://github.com/frappe/crm.git",
