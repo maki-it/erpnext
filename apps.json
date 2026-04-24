@@ -1,11 +1,11 @@
 [
   {
     "url": "https://github.com/frappe/erpnext.git",
-    "version": "v16.13.3"
+    "version": "v16.14.0"
   },
   {
     "url": "https://github.com/frappe/crm.git",
-    "version": "v1.64.0"
+    "version": "v1.69.0"
   },
   {
     "url": "https://github.com/frappe/helpdesk.git",
@@ -13,10 +13,10 @@
   },
   {
     "url": "https://github.com/frappe/insights.git",
-    "version": "v3.6.0"
+    "version": "v3.8.0"
   },
   {
     "url": "https://github.com/frappe/hrms.git",
-    "version": "v16.4.8"
+    "version": "v16.5.0"
   }
 ]
