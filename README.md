@@ -1,7 +1,7 @@
 # erpnext
 
 Custom Frappe/ERPNext Docker image, automatically built and pushed to
-[ghcr.io](https://github.com/orgs/maki-it/packages).
+[ghcr.io](https://github.com/maki-it/erpnext/pkgs/container/erpnext).
 
 ## Installed apps
 
