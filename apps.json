@@ -13,10 +13,10 @@
   },
   {
     "url": "https://github.com/frappe/insights.git",
-    "version": "v3.9.5"
+    "version": "v3.9.6"
   },
   {
     "url": "https://github.com/frappe/hrms.git",
-    "version": "v16.6.0"
+    "version": "v16.6.1"
   }
 ]
