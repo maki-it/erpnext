@@ -23,12 +23,12 @@ upstream. Merging the PR into `main` triggers a new Docker image build and push.
 
 1. Clone this repository with submodules:
 2. Define custom apps in `apps.json` (optional, see above).
-4. Build the image:
+3. Build the image:
 ```bash
 docker build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=$(cat frappe-version.txt) \
- --build-arg=APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
+ --secret=id=apps_json,src=apps.json \
  --tag=custom:15 \
  --file=images/layered/Containerfile .
 ```
