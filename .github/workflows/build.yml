@@ -43,6 +43,7 @@ jobs:
       - name: Prepare apps JSON
         run: |
           echo "FRAPPE_VERSION=$(cat frappe-version.txt)" >> $GITHUB_ENV
+          echo "APPS_JSON_HASH=$(sha256sum apps.json | awk '{print $1}')" >> $GITHUB_ENV
           echo "APPS_METADATA=$(jq -r '[ .[] | "\((.url | sub("\\.git$"; "") | split("/") | .[-2:] | join("/")) )@\(.branch)" ] | join(",")' apps.json)" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
@@ -79,6 +80,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
+            CACHE_BUST=${{ env.APPS_JSON_HASH }}
           secret-files: |
             apps_json=apps.json
           provenance: false
@@ -143,6 +145,7 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
+            CACHE_BUST=${{ env.APPS_JSON_HASH }}
           secret-files: |
             apps_json=apps.json
           provenance: true
