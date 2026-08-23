@@ -90,12 +90,16 @@ jobs:
         run: |
           set -euo pipefail
           docker run --rm -e APPS_METADATA="${APPS_METADATA}" erpnext-smoke:${{ github.sha }} bash -s <<'EOF'
-          set -euo pipefail
+          set -euxo pipefail
+          echo "Starting smoke test"
+          whoami
+          pwd
           cd /home/frappe/frappe-bench
-          bench --version
           echo "Expected apps metadata: ${APPS_METADATA}"
-          versions="$(bench version)"
-          echo "${versions}"
+          echo "bench --version output:"
+          bench --version 2>&1 | cat
+          echo "bench version output:"
+          bench version 2>&1 | tee /tmp/bench-version.txt
           IFS=, read -r -a entries <<< "${APPS_METADATA}"
           for entry in "${entries[@]}"; do
             repo="${entry%@*}"
@@ -104,7 +108,7 @@ jobs:
             app_path="apps/${app}"
             test -d "${app_path}" || { echo "Missing app directory: ${app_path}"; exit 1; }
 
-            actual="$(echo "${versions}" | awk -v app="${app}" '$1 == app { print $2; exit }')"
+            actual="$(awk -v app="${app}" '$1 == app { print $2; exit }' /tmp/bench-version.txt)"
             [ -n "${actual}" ] || { echo "Missing app version in bench output: ${app}"; exit 1; }
             expected_no_v="${expected#v}"
             if [ "${actual}" != "${expected}" ] && [ "${actual}" != "${expected_no_v}" ]; then
