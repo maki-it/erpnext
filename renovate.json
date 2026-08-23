@@ -8,13 +8,13 @@
   },
   "customManagers": [
     {
-      "description": "Update Frappe app versions pinned in apps.json",
+      "description": "Update Frappe app refs pinned in apps.json",
       "customType": "regex",
       "managerFilePatterns": [
         "/^apps.json$/"
       ],
       "matchStrings": [
-        "\"url\":\\s*\"https://github\\.com/(?<depName>[^\"]+)\\.git\"[\\s\\S]*?\"version\":\\s*\"(?<currentValue>[^\"]+)\""
+        "\"url\":\\s*\"https://github\\.com/(?<depName>[^\"]+)\\.git\"[\\s\\S]*?\"branch\":\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "datasourceTemplate": "github-tags",
       "versioningTemplate": "semver"

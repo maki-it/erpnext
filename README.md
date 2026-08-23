@@ -10,7 +10,7 @@ You can customize this list by modifying `apps.json` and rebuilding the image (s
 
 ## Versioning
 
-App versions in `apps.json` are pinned to specific release tags (e.g. `v16.12.0`).
+App refs in `apps.json` are pinned via the `branch` field, which can point to a specific release tag (e.g. `v16.12.0`).
 [Frappe Framework](https://github.com/frappe/frappe) version is pinned in `frappe-version.txt` (e.g. `v16.0.0`)
 
 ### Renovate

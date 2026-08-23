@@ -43,7 +43,7 @@ jobs:
       - name: Prepare apps JSON
         run: |
           echo "FRAPPE_VERSION=$(cat frappe-version.txt)" >> $GITHUB_ENV
-          echo "APPS_METADATA=$(jq -r '[ .[] | "\((.url | sub("\\.git$"; "") | split("/") | .[-2:] | join("/")) )@\(.version)" ] | join(",")' apps.json)" >> $GITHUB_ENV
+          echo "APPS_METADATA=$(jq -r '[ .[] | "\((.url | sub("\\.git$"; "") | split("/") | .[-2:] | join("/")) )@\(.branch)" ] | join(",")' apps.json)" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
