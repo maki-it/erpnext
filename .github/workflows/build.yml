@@ -60,7 +60,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
-            FRAPPE_VERSION=${{ env.FRAPPE_VERSION  }}
+            FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
           secret-files: |
             apps_json=apps.json
           cache-from: type=gha

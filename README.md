@@ -30,5 +30,5 @@ docker build \
  --build-arg=FRAPPE_BRANCH=$(cat frappe-version.txt) \
  --secret=id=apps_json,src=apps.json \
  --tag=custom:15 \
- --file=images/layered/Containerfile .
+ --file=frappe_docker/images/layered/Containerfile frappe_docker
 ```
