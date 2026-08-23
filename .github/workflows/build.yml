@@ -77,13 +77,12 @@ jobs:
           load: true
           tags: erpnext-smoke:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
-          annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
           secret-files: |
             apps_json=apps.json
-          provenance: true
-          sbom: true
+          provenance: false
+          sbom: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
