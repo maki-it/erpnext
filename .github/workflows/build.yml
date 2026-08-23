@@ -89,37 +89,31 @@ jobs:
       - name: Smoke test image
         run: |
           set -euo pipefail
-          docker run --rm -e APPS_METADATA="${APPS_METADATA}" erpnext-smoke:${{ github.sha }} bash -lc '
-            set -euo pipefail
-            cd /home/frappe/frappe-bench
-            bench --version
-            echo "Expected apps metadata: ${APPS_METADATA}"
-            bench version
-            IFS=, read -r -a entries <<< "${APPS_METADATA}"
-            for entry in "${entries[@]}"; do
-              repo="${entry%@*}"
-              expected="${entry##*@}"
-              app="${repo##*/}"
-              app_path="apps/${app}"
-              test -d "${app_path}" || { echo "Missing app directory: ${app_path}"; exit 1; }
+          docker run --rm -e APPS_METADATA="${APPS_METADATA}" erpnext-smoke:${{ github.sha }} bash -s <<'EOF'
+          set -euo pipefail
+          cd /home/frappe/frappe-bench
+          bench --version
+          echo "Expected apps metadata: ${APPS_METADATA}"
+          versions="$(bench version)"
+          echo "${versions}"
+          IFS=, read -r -a entries <<< "${APPS_METADATA}"
+          for entry in "${entries[@]}"; do
+            repo="${entry%@*}"
+            expected="${entry##*@}"
+            app="${repo##*/}"
+            app_path="apps/${app}"
+            test -d "${app_path}" || { echo "Missing app directory: ${app_path}"; exit 1; }
 
-              init_file="${app_path}/${app}/__init__.py"
-              actual=""
-              if [ -f "${init_file}" ]; then
-                actual="$(python -c "import pathlib,re,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding='utf-8', errors='ignore'); m=re.search(r\"__version__\\s*=\\s*['\\\"]([^'\\\"]+)['\\\"]\", t); print(m.group(1) if m else '')" "${init_file}")"
-              fi
-              if [ -z "${actual}" ] && [ -f "${app_path}/pyproject.toml" ]; then
-                actual="$(python -c "import pathlib,re,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding='utf-8', errors='ignore'); m=re.search(r\"^version\\s*=\\s*['\\\"]([^'\\\"]+)['\\\"]\", t, re.M); print(m.group(1) if m else '')" "${app_path}/pyproject.toml")"
-              fi
-
-              expected_no_v="${expected#v}"
-              if [ -n "${actual}" ] && [ "${actual}" != "${expected}" ] && [ "${actual}" != "${expected_no_v}" ]; then
-                echo "Version mismatch for ${app}: expected ${expected}, got ${actual}"
-                exit 1
-              fi
-              echo "Validated ${app}: expected ${expected}${actual:+, detected ${actual}}"
-            done
-          '
+            actual="$(echo "${versions}" | awk -v app="${app}" '$1 == app { print $2; exit }')"
+            [ -n "${actual}" ] || { echo "Missing app version in bench output: ${app}"; exit 1; }
+            expected_no_v="${expected#v}"
+            if [ "${actual}" != "${expected}" ] && [ "${actual}" != "${expected_no_v}" ]; then
+              echo "Version mismatch for ${app}: expected ${expected}, got ${actual}"
+              exit 1
+            fi
+            echo "Validated ${app}: expected ${expected}, detected ${actual}"
+          done
+          EOF
 
       - name: Build and push image
         if: ${{ github.event_name != 'pull_request' }}
