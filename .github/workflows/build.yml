@@ -4,7 +4,25 @@ on:
   push:
     branches:
       - main
+    paths:
+      - ".github/workflows/build.yml"
+      - ".gitmodules"
+      - "apps.json"
+      - "frappe-version.txt"
+      - "frappe_docker"
+      - "frappe_docker/**"
   pull_request:
+    paths:
+      - ".github/workflows/build.yml"
+      - ".gitmodules"
+      - "apps.json"
+      - "frappe-version.txt"
+      - "frappe_docker"
+      - "frappe_docker/**"
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -63,5 +81,7 @@ jobs:
             FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
           secret-files: |
             apps_json=apps.json
+          provenance: true
+          sbom: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
