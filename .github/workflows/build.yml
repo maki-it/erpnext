@@ -89,16 +89,23 @@ jobs:
       - name: Smoke test image
         run: |
           set -euo pipefail
-          docker run --rm -e APPS_METADATA="${APPS_METADATA}" erpnext-smoke:${{ github.sha }} bash -s <<'EOF'
+          echo "::group::Running smoke test container"
+          docker run --rm --entrypoint bash -e APPS_METADATA="${APPS_METADATA}" erpnext-smoke:${{ github.sha }} -s <<'EOF'
           set -euxo pipefail
-          echo "Starting smoke test"
+          echo "=== starting smoke test ==="
           whoami
           pwd
+          echo "=== /home/frappe ==="
+          ls -la /home/frappe
           cd /home/frappe/frappe-bench
+          echo "=== working directory ==="
+          pwd
+          echo "=== apps directory ==="
+          ls -la apps
           echo "Expected apps metadata: ${APPS_METADATA}"
-          echo "bench --version output:"
+          echo "=== bench --version output ==="
           bench --version 2>&1 | cat
-          echo "bench version output:"
+          echo "=== bench version output ==="
           bench version 2>&1 | tee /tmp/bench-version.txt
           IFS=, read -r -a entries <<< "${APPS_METADATA}"
           for entry in "${entries[@]}"; do
@@ -117,7 +124,9 @@ jobs:
             fi
             echo "Validated ${app}: expected ${expected}, detected ${actual}"
           done
+          echo "=== smoke test passed ==="
           EOF
+          echo "::endgroup::"
 
       - name: Build and push image
         if: ${{ github.event_name != 'pull_request' }}
