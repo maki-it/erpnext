@@ -89,8 +89,8 @@ jobs:
       - name: Smoke test image
         run: |
           set -euo pipefail
-          echo "::group::Running smoke test container"
-          docker run --rm --entrypoint bash -e APPS_METADATA="${APPS_METADATA}" erpnext-smoke:${{ github.sha }} -s <<'EOF'
+          script_path="${RUNNER_TEMP}/erpnext-smoke-test.sh"
+          cat > "${script_path}" <<'EOF'
           set -euxo pipefail
           echo "=== starting smoke test ==="
           whoami
@@ -126,6 +126,16 @@ jobs:
           done
           echo "=== smoke test passed ==="
           EOF
+          chmod +x "${script_path}"
+          echo "Smoke test script:"
+          cat "${script_path}"
+          echo "::group::Running smoke test container"
+          docker run --rm \
+            --entrypoint bash \
+            -e APPS_METADATA="${APPS_METADATA}" \
+            -v "${script_path}:/tmp/erpnext-smoke-test.sh:ro" \
+            erpnext-smoke:${{ github.sha }} \
+            /tmp/erpnext-smoke-test.sh
           echo "::endgroup::"
 
       - name: Build and push image
