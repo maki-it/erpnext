@@ -68,12 +68,45 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}, value=${{ env.FRAPPE_VERSION }}
             type=semver,pattern={{major}}, value=${{ env.FRAPPE_VERSION }}
 
-      - name: Build image
+      - name: Build image for smoke test
         uses: docker/build-push-action@v7
         with:
           file: frappe_docker/images/layered/Containerfile
           context: frappe_docker
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false
+          load: true
+          tags: erpnext-smoke:${{ github.sha }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          build-args: |
+            FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
+          secret-files: |
+            apps_json=apps.json
+          provenance: true
+          sbom: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test image
+        run: |
+          set -euo pipefail
+          expected_apps="$(echo "${APPS_METADATA}" | tr ',' '\n' | sed -E 's|.*/([^/@]+)@.*|\1|' | tr '\n' ' ')"
+          docker run --rm -e EXPECTED_APPS="${expected_apps}" erpnext-smoke:${{ github.sha }} bash -lc '
+            set -euo pipefail
+            cd /home/frappe/frappe-bench
+            bench --version
+            for app in ${EXPECTED_APPS}; do
+              test -d "apps/${app}" || { echo "Missing app: ${app}"; exit 1; }
+            done
+          '
+
+      - name: Build and push image
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/build-push-action@v7
+        with:
+          file: frappe_docker/images/layered/Containerfile
+          context: frappe_docker
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
