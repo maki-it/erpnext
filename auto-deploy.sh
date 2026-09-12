@@ -10,7 +10,7 @@ cd frappe-docker
 wget https://raw.githubusercontent.com/frappe/bench/develop/easy-install.py
 
 python3 easy-install.py build \
-  --frappe-branch=version-16 \
+  --frappe-branch=develop \
   --python-version=3.14.2 \
   --node-version=24.14.1 \
   --apps-json=apps.json

@@ -10,14 +10,13 @@ You can customize this list by modifying `apps.json` and rebuilding the image (s
 
 ## Versioning
 
-App refs in `apps.json` are pinned via the `branch` field, which can point to a specific release tag (e.g. `v16.12.0`).
-[Frappe Framework](https://github.com/frappe/frappe) version is pinned in `frappe-version.txt` (e.g. `v16.0.0`)
+Apps in `apps.json` and [Frappe Framework](https://github.com/frappe/frappe) in `frappe-version.txt` track their respective `develop` branches. Each image build resolves the latest commit available on those branches.
 
 ### Renovate
 
 [Renovate](https://docs.renovatebot.com/) is configured via [`renovate.json`](./renovate.json)
-to watch those tags and automatically open a pull request whenever a new release is published
-upstream. Merging the PR into `main` triggers a new Docker image build and push.
+to update the `frappe_docker` submodule. App and framework repositories track `develop` directly,
+so they do not need Renovate updates.
 
 ## Local image build
 
@@ -29,6 +28,6 @@ docker build \
  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
  --build-arg=FRAPPE_BRANCH=$(cat frappe-version.txt) \
  --secret=id=apps_json,src=apps.json \
- --tag=custom:15 \
+ --tag=custom:develop \
  --file=frappe_docker/images/layered/Containerfile frappe_docker
 ```

@@ -42,7 +42,7 @@ jobs:
       # fall back to the committed apps.json file.
       - name: Prepare apps JSON
         run: |
-          echo "FRAPPE_VERSION=$(cat frappe-version.txt)" >> $GITHUB_ENV
+          echo "FRAPPE_REF=$(cat frappe-version.txt)" >> $GITHUB_ENV
           echo "APPS_JSON_HASH=$(sha256sum apps.json | awk '{print $1}')" >> $GITHUB_ENV
           echo "APPS_METADATA=$(jq -r '[ .[] | "\((.url | sub("\\.git$"; "") | split("/") | .[-2:] | join("/")) )@\(.branch)" ] | join(",")' apps.json)" >> $GITHUB_ENV
 
@@ -62,12 +62,11 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           labels: |
-            frappe.version=${{ env.FRAPPE_VERSION }}
+            frappe.ref=${{ env.FRAPPE_REF }}
             frappe.apps=${{ env.APPS_METADATA }}
           tags: |
-            type=semver,pattern={{version}},value=${{ env.FRAPPE_VERSION }}
-            type=semver,pattern={{major}}.{{minor}}, value=${{ env.FRAPPE_VERSION }}
-            type=semver,pattern={{major}}, value=${{ env.FRAPPE_VERSION }}
+            type=raw,value=develop
+            type=sha,format=short,prefix=develop-
 
       - name: Build image for smoke test
         uses: docker/build-push-action@v7
@@ -79,7 +78,7 @@ jobs:
           tags: erpnext-smoke:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
+            FRAPPE_BRANCH=${{ env.FRAPPE_REF }}
             CACHE_BUST=${{ env.APPS_JSON_HASH }}
           secret-files: |
             apps_json=apps.json
@@ -144,7 +143,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
-            FRAPPE_BRANCH=${{ env.FRAPPE_VERSION  }}
+            FRAPPE_BRANCH=${{ env.FRAPPE_REF }}
             CACHE_BUST=${{ env.APPS_JSON_HASH }}
           secret-files: |
             apps_json=apps.json

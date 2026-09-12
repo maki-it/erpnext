@@ -5,32 +5,5 @@
   ],
   "git-submodules": {
     "enabled": true
-  },
-  "customManagers": [
-    {
-      "description": "Update Frappe app refs pinned in apps.json",
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^apps.json$/"
-      ],
-      "matchStrings": [
-        "\"url\":\\s*\"https://github\\.com/(?<depName>[^\"]+)\\.git\"[\\s\\S]*?\"branch\":\\s*\"(?<currentValue>[^\"]+)\""
-      ],
-      "datasourceTemplate": "github-tags",
-      "versioningTemplate": "semver"
-    },
-    {
-      "description": "Update Frappe version pinned in frappe-version.txt",
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^frappe-version\\.txt$/"
-      ],
-      "matchStrings": [
-        "^(?<currentValue>v?\\d+\\.\\d+\\.\\d+)$"
-      ],
-      "depNameTemplate": "frappe/frappe",
-      "datasourceTemplate": "github-tags",
-      "versioningTemplate": "semver-coerced"
-    }
-  ]
+  }
 }
